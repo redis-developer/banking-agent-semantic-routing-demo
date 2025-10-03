@@ -1,0 +1,39 @@
+/* cursor-task: Create a super simple React component `ChatDock.tsx` for Next.js that:
+- Shows a plain vertical list of messages (user vs assistant).
+- Each message is just a small box with text, user on the right, assistant on the left.
+- At the bottom, a single-line input box + send button.
+- When I type and press send, call POST /api/chat (mock for now) with { text }.
+- Append user message and assistant reply to the list.
+- Use very basic Tailwind styles (no fancy badges, no streaming, no scrolling logic).
+*/
+
+/* cursor-task: Tell me the exact terminal command to run my Next.js 14 dev server so 
+I can open the app in my browser. Assume I’m in the project folder. */
+
+/* cursor-task: Create `app/page.tsx` that shows:
+- A header with "Demo Bank"
+- A 3-column static dashboard (Balance, Cards, Insights) with inert placeholders.
+- The ChatDock component at the bottom.
+- Tailwind layout (responsive). */
+
+/* cursor-task: Create a minimal FastAPI app (Python 3.10+) with:
+- Endpoint: POST /chat  accepts { userId?: string, text: string }
+- create env file for openai key, call openai to generate answer
+
+- Add CORS for http://localhost:3000.
+- Provide `main.py` and `requirements.txt` (fastapi, uvicorn[standard], openai>=1.40).
+- Include a README snippet showing how to run: `pip install -r requirements.txt` and `uvicorn main:app --reload --port 8000`.
+*/
+
+/* cursor-task: Update my Next.js + Tailwind front end to match the look of a modern mobile banking app UI (see reference image):
+- Use a dark-to-deep gradient background (green/blue).
+- Primary accent: neon green (#A3FF12 or similar).
+- Secondary accent: teal/blue gradients.
+- Cards should have glassmorphism style: rounded-xl, semi-transparent, soft shadow.
+- Typography: use "Inter" or "Poppins" font, medium weight for headings, regular for body.
+- Replace Tailwind default colors by extending theme in tailwind.config.js with custom palette (primary, secondary, accent).
+- Apply consistent rounded corners (xl/2xl), larger padding, and white text on dark backgrounds.
+- Make balance/transaction cards pop with gradient backgrounds and white text.
+- Ensure chat component fits this theme: dark background, neon accent border, rounded corners.
+*/
+
