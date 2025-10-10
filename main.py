@@ -101,6 +101,10 @@ class ChatResponse(BaseModel):
 async def root():
     return {"message": "Chat API is running! Use POST /chat to send messages."}
 
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "message": "Banking AI Assistant API is running"}
+
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     try:
