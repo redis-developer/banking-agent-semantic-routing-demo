@@ -6,16 +6,7 @@ from typing import Optional
 import openai
 from dotenv import load_dotenv
 
-# LangCache imports (preserved for future use)
-try:
-    from langcache import LangCache
-    cache_available = True
-except ImportError:
-    cache_available = False
-    print("⚠️  LangCache not available. Install with: pip install langcache")
-
-# Feature flag for LangCache
-USE_LANGCACHE = os.getenv("USE_LANGCACHE", "false").lower() == "true"
+# LangCache removed - using semantic routing and conversation memory only
 
 # Load environment variables
 load_dotenv()
@@ -37,7 +28,7 @@ except ImportError:
         pass
 
 # Initialize FastAPI app
-app = FastAPI(title="Chat API", description="Simple chat API with OpenAI integration and caching")
+app = FastAPI(title="Bank Semantic Router API", description="Intelligent banking chatbot with semantic routing and conversation memory")
 
 # Add CORS middleware
 app.add_middleware(
@@ -51,28 +42,7 @@ app.add_middleware(
 # Initialize OpenAI client
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-# Initialize LangCache if available
-lang_cache = None
-if cache_available:
-    try:
-        # LangCache configuration (from working notebook)
-        langcache_host = os.getenv('LANGCACHE_HOST', 'gcp-us-east4.langcache.redis.io')
-        langcache_cache_id = os.getenv('LANGCACHE_CACHE_ID', '8cf48d66904b459094a84e2e8a9093c0')
-        langcache_api_key = os.getenv('LANGCACHE_API_KEY')
-        
-        if langcache_api_key:
-            lang_cache = LangCache(
-                server_url=f"https://{langcache_host}",
-                cache_id=langcache_cache_id,
-                api_key=langcache_api_key
-            )
-            print("✅ LangCache initialized successfully")
-        else:
-            print("⚠️  LangCache API key not found in environment")
-            cache_available = False
-    except Exception as e:
-        print(f"⚠️  Failed to initialize LangCache: {e}")
-        cache_available = False
+# LangCache initialization removed
 
 # Import orchestrator
 try:
@@ -99,11 +69,11 @@ class ChatResponse(BaseModel):
 
 @app.get("/")
 async def root():
-    return {"message": "Chat API is running! Use POST /chat to send messages."}
+    return {"message": "Bank Semantic Router API is running! Use POST /chat to send messages."}
 
 @app.get("/health")
 async def health():
-    return {"status": "healthy", "message": "Banking AI Assistant API is running"}
+    return {"status": "healthy", "message": "Bank Semantic Router API is running"}
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
@@ -119,24 +89,7 @@ async def chat(request: ChatRequest):
         query = request.text.strip()
         session_id = request.sessionId or f"session_{request.userId or 'anon'}_{int(__import__('time').time())}"
         
-        # Check cache first if available (only if USE_LANGCACHE is enabled)
-        if USE_LANGCACHE and cache_available and lang_cache:
-            try:
-                cache_result = lang_cache.search(prompt=query, similarity_threshold=0.8)
-                
-                if cache_result.data:
-                    # Cache hit - return cached response
-                    cached_entry = cache_result.data[0]
-                    print(f"🎯 CACHE HIT for query: '{query[:50]}...'")
-                    return ChatResponse(
-                        reply=cached_entry.response,
-                        userId=request.userId,
-                        sessionId=session_id
-                    )
-                else:
-                    print(f"❌ CACHE MISS for query: '{query[:50]}...'")
-            except Exception as e:
-                print(f"⚠️  Cache lookup failed: {e}")
+        # LangCache removed - using semantic routing and conversation memory only
         
         # Use orchestrator if available, otherwise fallback to simple LLM
         if orchestrator_available:
@@ -163,13 +116,7 @@ async def chat(request: ChatRequest):
             add_message(session_id, "assistant", result['reply'], intent, score)
             print(f"💾 Stored conversation turn in Redis (session: {session_id})")
             
-            # Store in cache if enabled
-            if USE_LANGCACHE and cache_available and lang_cache:
-                try:
-                    lang_cache.set(prompt=query, response=result["reply"])
-                    print(f"💾 Stored in cache: '{query[:50]}...'")
-                except Exception as e:
-                    print(f"⚠️  Failed to store in cache: {e}")
+            # LangCache storage removed
             
             # Show feedback when proposal is returned (task completed)
             show_feedback = bool(result.get("proposal"))
@@ -205,13 +152,7 @@ async def chat(request: ChatRequest):
             
             reply = response.choices[0].message.content
             
-            # Store in cache if enabled
-            if USE_LANGCACHE and cache_available and lang_cache:
-                try:
-                    lang_cache.set(prompt=query, response=reply)
-                    print(f"💾 Stored in cache: '{query[:50]}...'")
-                except Exception as e:
-                    print(f"⚠️  Failed to store in cache: {e}")
+            # LangCache storage removed
             
             return ChatResponse(
                 reply=reply,

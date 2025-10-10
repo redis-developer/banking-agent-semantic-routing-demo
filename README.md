@@ -1,15 +1,14 @@
-# Banking AI Assistant 🏦🤖
+# Bank Semantic Router 🏦🤖
 
-An intelligent banking chatbot with semantic routing, slot-filling orchestration, and optional semantic caching. Built with FastAPI, LangGraph, RedisVL Semantic Router, LangChain tools, and Next.js frontend.
+An intelligent banking chatbot with semantic routing and slot-filling orchestration. Built with FastAPI, LangGraph, RedisVL Semantic Router, LangChain tools, and Next.js frontend.
 
-## 🏗️ Architecture
+## Architecture
 
 This application uses a modern AI stack:
 
 - **Semantic Routing** (RedisVL): Routes queries to appropriate banking intents (loans, cards, FD, forex, etc.)
 - **Slot-Filling Orchestration** (LangGraph): Manages conversation state and collects required information
 - **Tool Execution** (LangChain): Executes banking operations (EMI calculation, card recommendations, etc.)
-- **Optional Caching** (LangCache): Semantic caching for repeated queries (disabled by default)
 - **Modern Frontend** (Next.js 14 + TypeScript + Tailwind): Responsive banking UI with chat interface
 - **Conversation Memory** (RedisVL MessageHistory): Structured conversation tracking with session management
 
@@ -25,7 +24,7 @@ This application uses a modern AI stack:
 ```bash
 # Clone the repository
 git clone <repository-url>
-cd bank_langcache
+cd bank_semantic_router
 
 # Start all services with Docker
 docker-compose up --build
@@ -72,11 +71,6 @@ OPENAI_API_KEY=your_openai_api_key_here
 # Redis Configuration
 REDIS_URL=redis://localhost:6380
 
-# LangCache (Optional - disabled by default)
-USE_LANGCACHE=false
-LANGCACHE_HOST=gcp-us-east4.langcache.redis.io
-LANGCACHE_CACHE_ID=your_cache_id_here
-LANGCACHE_API_KEY=your_langcache_api_key_here
 
 # RedisVL MessageHistory Configuration
 HISTORY_INDEX=bank:msg:index
@@ -108,7 +102,7 @@ npm run dev
 
 Frontend will be available at `http://localhost:3000`
 
-## 📡 API Endpoints
+##  API Endpoints
 
 ### POST /chat
 
@@ -165,7 +159,7 @@ User feedback endpoint for conversation management.
 
 Health check endpoint.
 
-## 🎯 Supported Banking Intents
+## Supported Banking Intents
 
 | Intent | Description | Required Slots | Tool |
 |--------|-------------|----------------|------|
@@ -203,21 +197,8 @@ Assistant: Based on your income of ₹8,00,000, we recommend the DemoBank Travel
 - Airport lounge access
 ```
 
-## 🔧 LangCache (Optional)
 
-**By default, LangCache is DISABLED**. To enable:
-
-```bash
-export USE_LANGCACHE=true
-```
-
-### How it works:
-1. **Cache Check**: Semantic similarity search (threshold: 0.8)
-2. **Cache Hit**: Return cached response (no LLM/tool call)
-3. **Cache Miss**: Execute LangGraph flow, then cache final answer
-4. **Benefits**: ⚡ Faster responses, 💰 Cost savings, 🔄 Semantic matching
-
-## 🐳 Docker Setup
+## Docker Setup
 
 The project includes Docker & Docker Compose for easy development and deployment.
 
@@ -259,7 +240,7 @@ docker-compose exec backend bash
 docker-compose exec frontend sh
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Test Router
 ```bash
@@ -283,7 +264,7 @@ curl -X POST http://localhost:8000/chat \
 python3 test_system.py
 ```
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Backend
 - **FastAPI**: Web framework
@@ -292,7 +273,6 @@ python3 test_system.py
 - **RedisVL**: Semantic routing & message history
 - **Sentence Transformers**: Text embeddings
 - **OpenAI**: LLM for slot extraction & summarization
-- **LangCache**: Optional semantic caching
 
 ### Frontend
 - **Next.js 14**: React framework
@@ -352,12 +332,8 @@ User Query
 - Automatic conversation clearing on positive feedback
 - Rich metadata storage (intent, score, timestamps)
 
-### Optional Caching
-- LangCache preserved but disabled by default
-- Enable with `export USE_LANGCACHE=true`
-- Caches final answers to reduce LLM calls
 
-## 🔄 User Feedback System
+## User Feedback System
 
 After completing a task (showing a proposal/recommendation), the system asks "Was this helpful?" with Yes/No buttons. When the user clicks **Yes**, the conversation memory is automatically cleared for a fresh start.
 
@@ -411,7 +387,7 @@ docker system prune -a
 ## 📁 Project Structure
 
 ```
-bank_langcache/
+bank_semantic_router/
 ├── main.py                    # FastAPI backend
 ├── orchestrator.py            # LangGraph state machine
 ├── router_bank.py             # Semantic router
@@ -440,33 +416,7 @@ bank_langcache/
     └── Dockerfile.dev        # Frontend Dockerfile
 ```
 
-## 🎉 Success Criteria Met
-
-✅ Semantic routing with RedisVL  
-✅ LangGraph orchestration  
-✅ Slot-filling conversations  
-✅ Tool execution with 6 banking tools  
-✅ LangCache preserved (optional)  
-✅ Modern frontend with intent display  
-✅ Comprehensive documentation  
-✅ Session management  
-✅ Error handling & fallbacks  
-✅ Docker containerization  
-✅ User feedback system  
-✅ Conversation memory management  
-
-## 🚧 Next Steps (Optional Enhancements)
-
-1. **Session Persistence**: Store conversation history in Redis
-2. **Context Maintenance**: Pass full context across turns
-3. **Tool Chaining**: Allow multiple tool calls in one turn
-4. **Advanced RAG**: Real Redis vector search for policies
-5. **User Authentication**: Integrate with user database
-6. **Production LLM**: Use GPT-4 for better slot extraction
-7. **Monitoring**: Add LangSmith tracing
-8. **Testing**: Unit tests for tools and orchestrator
-
-## 📚 Dependencies
+## Dependencies
 
 ### Python (Backend)
 - fastapi: Web framework
@@ -475,7 +425,6 @@ bank_langcache/
 - langchain-openai: OpenAI integration
 - redisvl: Semantic routing & message history
 - sentence-transformers: Text embeddings
-- langcache: Optional caching
 - openai: LLM API
 
 ### Node.js (Frontend)
@@ -488,17 +437,16 @@ bank_langcache/
 - redis-stack: Vector database & search
 - docker: Containerization
 
-## 🎯 Result
+## Result
 
 A production-ready intelligent banking assistant that:
 - Routes queries semantically
 - Collects information through conversation
 - Executes banking operations
 - Returns structured, detailed responses
-- Optionally caches for performance
 - Displays beautifully in modern UI
 - Manages conversation memory intelligently
 - Provides user feedback system
 - Runs in Docker containers
 
-All while preserving the original LangCache functionality for future use! 🚀
+A complete semantic routing solution for intelligent banking conversations!
