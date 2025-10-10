@@ -101,8 +101,6 @@ Intelligent chat endpoint with semantic routing and slot-filling.
 ```json
 {
   "reply": "What loan amount are you looking for?",
-  "action": "ask",
-  "askedSlot": "loan_amount",
   "pending": ["loan_amount", "tenure_months"],
   "router": {
     "intent": "loan",

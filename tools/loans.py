@@ -33,9 +33,9 @@ def calculate_emi_tool(loan_amount: float, interest_rate: float, tenure_months: 
         total_payment = emi * tenure_months
         total_interest = total_payment - loan_amount
         
-        # Format amounts in Indian numbering system
+        # Format amounts in Indian numbering system (no decimal places)
         def format_inr(amount):
-            return f"₹{amount:,.2f}".replace(",", "temp").replace(".", ",").replace("temp", ".")
+            return f"₹{round(amount):,}"
         
         return {
             "summary": f"Your EMI will be {format_inr(emi)} per month for {tenure_months} months.",

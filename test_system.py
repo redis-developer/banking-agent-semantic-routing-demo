@@ -48,8 +48,6 @@ def test_chat_endpoint(query, description):
         print(f"Confidence: {data.get('router', {}).get('confidence')}")
         print(f"Score: {data.get('router', {}).get('score')}")
         
-        if data.get('askedSlot'):
-            print(f"Asked for slot: {data.get('askedSlot')}")
         
         if data.get('proposal'):
             bullets = data['proposal'].get('bullets', [])

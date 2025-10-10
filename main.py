@@ -87,18 +87,14 @@ class ChatRequest(BaseModel):
     userId: Optional[str] = None
     sessionId: Optional[str] = None
     text: str
-    meta: Optional[dict] = None
 
 class ChatResponse(BaseModel):
     reply: str
     userId: Optional[str] = None
     sessionId: Optional[str] = None
-    action: Optional[str] = None
-    askedSlot: Optional[str] = None
     pending: Optional[list] = None
     router: Optional[dict] = None
     proposal: Optional[dict] = None
-    model: Optional[str] = None
     showFeedback: Optional[bool] = False  # Show "Was this helpful?" when true
 
 @app.get("/")
@@ -131,9 +127,7 @@ async def chat(request: ChatRequest):
                     return ChatResponse(
                         reply=cached_entry.response,
                         userId=request.userId,
-                        sessionId=session_id,
-                        action="answer",
-                        model="cached"
+                        sessionId=session_id
                     )
                 else:
                     print(f"❌ CACHE MISS for query: '{query[:50]}...'")
@@ -154,7 +148,6 @@ async def chat(request: ChatRequest):
                 user_id=request.userId,
                 session_id=session_id,
                 text=query,
-                meta=request.meta,
                 context=context_text
             )
             
@@ -166,8 +159,8 @@ async def chat(request: ChatRequest):
             add_message(session_id, "assistant", result['reply'], intent, score)
             print(f"💾 Stored conversation turn in Redis (session: {session_id})")
             
-            # Store in cache if enabled and it's a final answer
-            if USE_LANGCACHE and cache_available and lang_cache and result.get("action") == "answer":
+            # Store in cache if enabled
+            if USE_LANGCACHE and cache_available and lang_cache:
                 try:
                     lang_cache.set(prompt=query, response=result["reply"])
                     print(f"💾 Stored in cache: '{query[:50]}...'")
@@ -181,12 +174,9 @@ async def chat(request: ChatRequest):
                 reply=result["reply"],
                 userId=request.userId,
                 sessionId=session_id,
-                action=result.get("action"),
-                askedSlot=result.get("askedSlot"),
                 pending=result.get("pending"),
                 router=result.get("router"),
                 proposal=result.get("proposal"),
-                model=result.get("model"),
                 showFeedback=show_feedback
             )
         else:
@@ -222,9 +212,7 @@ async def chat(request: ChatRequest):
             return ChatResponse(
                 reply=reply,
                 userId=request.userId,
-                sessionId=session_id,
-                action="answer",
-                model="gpt-3.5-turbo-fallback"
+                sessionId=session_id
             )
         
     except openai.APIError as e:

@@ -33,8 +33,6 @@ class ConversationState(TypedDict):
     router_result: Optional[Dict]
     slots: Dict[str, Any]
     pending_slots: List[str]
-    asked_slot: Optional[str]
-    action: str  # "ask" | "answer" | "error"
     reply: str
     proposal: Optional[Dict]
     tool_result: Optional[Dict]
@@ -145,7 +143,7 @@ def route_intent_node(state: ConversationState) -> ConversationState:
         else:
             state["pending_slots"] = []
         
-        print(f"🎯 Routed to: {result['intent']} (confidence: {result['confidence']}, score: {result['score']})")
+        print(f"Routed to: {result['intent']} (confidence: {result['confidence']}, score: {result['score']})")
     
     return state
 
@@ -201,31 +199,18 @@ Examples:
         import json
         extracted = json.loads(response.content)
         
-        # Normalize slot names (handle variations)
-        slot_mapping = {
-            "loan_amount": "amount",
-            "tenure_months": "tenure",
-            "annual_income": "income",
-        }
-        
-        normalized = {}
+        # Update slots directly
         for slot, value in extracted.items():
-            # Map to standard slot name
-            standard_slot = slot_mapping.get(slot, slot)
-            normalized[standard_slot] = value
-        
-        # Update slots
-        for slot, value in normalized.items():
             if value is not None:
                 state["slots"][slot] = value
                 if slot in state["pending_slots"]:
                     state["pending_slots"].remove(slot)
         
-        print(f"📝 Extracted slots: {extracted}")
-        print(f"⏳ Pending slots: {state['pending_slots']}")
+        print(f"Extracted slots: {extracted}")
+        print(f"Pending slots: {state['pending_slots']}")
         
     except Exception as e:
-        print(f"⚠️ Slot extraction failed: {e}")
+        print(f"Slot extraction failed: {e}")
     
     return state
 
@@ -233,7 +218,6 @@ Examples:
 def decide_next_node(state: ConversationState) -> ConversationState:
     """Decide whether to ask for more info or call tool"""
     if state["intent"] == "unknown":
-        state["action"] = "answer"
         state["reply"] = "I'm not sure I understand. Could you please rephrase? I can help with loans, credit cards, FD investments, forex, policies, and fraud reports."
         return state
     
@@ -241,20 +225,17 @@ def decide_next_node(state: ConversationState) -> ConversationState:
     filled_slots = set(state["slots"].keys())
     state["pending_slots"] = [s for s in state["pending_slots"] if s not in filled_slots]
     
-    print(f"✅ Filled slots: {list(filled_slots)}")
-    print(f"⏳ Still pending: {state['pending_slots']}")
+    print(f"Filled slots: {list(filled_slots)}")
+    print(f"Still pending: {state['pending_slots']}")
     
     if state["pending_slots"]:
         # Need more information
-        state["action"] = "ask"
         next_slot = state["pending_slots"][0]
-        state["asked_slot"] = next_slot
         
         # Generate question for the slot
         slot_questions = {
             "loan_amount": "What loan amount are you looking for?",
             "loan_type": "What type of loan do you need? (personal/home/car/education)",
-            "tenure_months": "What tenure are you considering? (in months or years)",
             "interest_rate": "What interest rate were you quoted? (if you know)",
             "income": "What is your annual income?",
             "card_type": "What type of benefits are you interested in? (travel/cashback/premium)",
@@ -268,7 +249,7 @@ def decide_next_node(state: ConversationState) -> ConversationState:
         state["reply"] = slot_questions.get(next_slot, f"Could you provide: {next_slot}?")
     else:
         # All slots filled, ready to call tool
-        state["action"] = "call_tool"
+        pass
     
     return state
 
@@ -278,7 +259,6 @@ def call_tool_node(state: ConversationState) -> ConversationState:
     handler_name = state["router_result"]["metadata"].get("handler")
     
     if not handler_name or handler_name not in TOOL_MAP:
-        state["action"] = "answer"
         state["reply"] = "I found your intent but couldn't process it. Please contact support."
         return state
     
@@ -291,9 +271,9 @@ def call_tool_node(state: ConversationState) -> ConversationState:
         # Tool-specific parameter mapping
         if handler_name == "loans_tool":
             tool_params = {
-                "loan_amount": state["slots"].get("amount") or state["slots"].get("loan_amount", 500000),
+                "loan_amount": state["slots"].get("amount", 500000),
                 "interest_rate": state["slots"].get("interest_rate", 10.5),
-                "tenure_months": state["slots"].get("tenure_months") or state["slots"].get("tenure", 60)
+                "tenure_months": state["slots"].get("tenure", 60)
             }
         elif handler_name == "cards_tool":
             tool_params = {
@@ -303,7 +283,7 @@ def call_tool_node(state: ConversationState) -> ConversationState:
         elif handler_name == "savings_tool":
             tool_params = {
                 "total_amount": state["slots"].get("amount", 100000),
-                "tenure_months": state["slots"].get("tenure_months") or state["slots"].get("tenure", 12)
+                "tenure_months": state["slots"].get("tenure", 12)
             }
         elif handler_name == "forex_tool":
             tool_params = {
@@ -324,11 +304,9 @@ def call_tool_node(state: ConversationState) -> ConversationState:
         result = tool.invoke(tool_params)
         
         state["tool_result"] = result
-        state["action"] = "answer"
         
     except Exception as e:
-        print(f"❌ Tool execution failed: {e}")
-        state["action"] = "answer"
+        print(f"Tool execution failed: {e}")
         state["tool_result"] = {
             "summary": f"Sorry, I encountered an error: {str(e)}",
             "bullets": ["Please try again or contact support."],
@@ -340,10 +318,6 @@ def call_tool_node(state: ConversationState) -> ConversationState:
 
 def summarize_node(state: ConversationState) -> ConversationState:
     """Generate final response summary"""
-    if state["action"] == "ask":
-        # Already have the question in reply
-        return state
-    
     if state["tool_result"]:
         # Format tool result into response
         result = state["tool_result"]
@@ -358,12 +332,16 @@ def summarize_node(state: ConversationState) -> ConversationState:
 
 def should_continue(state: ConversationState) -> str:
     """Determine next node in the graph"""
-    if state["action"] == "ask":
+    # If we have pending slots, we're asking for more info - end here
+    if state["pending_slots"]:
         return END
-    elif state["action"] == "call_tool":
-        return "call_tool"
-    elif state["action"] == "answer":
+    # If we have a tool result, we need to summarize it
+    elif state.get("tool_result"):
         return "summarize"
+    # If we have slots but no tool result, we need to call the tool
+    elif state["slots"] and state["router_result"]:
+        return "call_tool"
+    # Otherwise, we're done
     else:
         return END
 
@@ -460,7 +438,6 @@ def handle_turn(
     user_id: Optional[str],
     session_id: str,
     text: str,
-    meta: Optional[Dict] = None,
     context: Optional[str] = None
 ) -> Dict[str, Any]:
     """
@@ -470,13 +447,13 @@ def handle_turn(
         user_id: Optional user identifier
         session_id: Session identifier
         text: User's message
-        meta: Optional metadata
         context: Optional conversation context from memory
         
     Returns:
-        Response dict with reply, action, slots, etc.
+        Response dict with reply, slots, etc.
     """
     # Extract previously filled slots from context
+    # TODO: Store slots locally in a dict and check performance
     existing_slots = extract_slots_from_context(context) if context else {}
     
     # Initialize state with optional context and existing slots
@@ -489,8 +466,6 @@ def handle_turn(
         "router_result": None,
         "slots": existing_slots,  # Preserve slots from previous turns
         "pending_slots": [],
-        "asked_slot": None,
-        "action": "answer",
         "reply": "",
         "proposal": None,
         "tool_result": None,
@@ -504,16 +479,13 @@ def handle_turn(
     # Format response
     return {
         "reply": final_state["reply"],
-        "action": final_state["action"],
-        "askedSlot": final_state.get("asked_slot"),
         "pending": final_state.get("pending_slots", []),
         "router": {
             "intent": final_state.get("intent"),
             "confidence": final_state.get("confidence"),
             "score": final_state["router_result"].get("score") if final_state.get("router_result") else None
         },
-        "proposal": final_state.get("proposal"),
-        "model": "gpt-3.5-turbo"
+        "proposal": final_state.get("proposal")
     }
 
 
@@ -542,7 +514,7 @@ if __name__ == "__main__":
             text=text
         )
         
-        print(f"\nAssistant ({response['action']}): {response['reply']}")
+        print(f"\nAssistant: {response['reply']}")
         if response.get('proposal'):
             print(f"\nDetails:")
             for bullet in response['proposal'].get('bullets', [])[:5]:
