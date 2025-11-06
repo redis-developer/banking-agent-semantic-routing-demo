@@ -1,4 +1,4 @@
-# Semantic Routing with Redis: A Banking Chatbot"
+# Semantic Routing with Redis: A Banking Chatbot
 
 A banking chatbot with semantic routing and slot-filling orchestration. Built with FastAPI, LangGraph, RedisVL Semantic Router, LangChain tools, and Next.js frontend.
 
