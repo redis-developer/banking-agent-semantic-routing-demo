@@ -1,28 +1,67 @@
-# Semantic Routing with Redis: A Banking Chatbot
+# Banking Agent Demo with Semantic Routing
 
-A banking chatbot with semantic routing and slot-filling orchestration. Built with FastAPI, LangGraph, RedisVL Semantic Router, LangChain tools, and Next.js frontend.
+Virtual banking Agent demonstrates how semantic routing can intelligently route queries to the right tools based on the meaning of the user query without relying on expensive models which in turn saves token costs and reduces latency.
 
-## Architecture
+---
 
-- **Semantic Routing** (RedisVL): Routes queries to appropriate banking intents (loans, cards, FD, forex, etc.)
-- **Slot-Filling Orchestration** (LangGraph): Manages conversation state and collects required information
-- **Tool Execution** (LangChain): Executes banking operations (EMI calculation, card recommendations, etc.)
-- **Modern Frontend** (Next.js 14 + TypeScript + Tailwind): Responsive banking UI with chat interface
-- **Conversation Memory** (RedisVL MessageHistory): Structured conversation tracking
+## Table of Contents
 
-## Quick Start
+* [Background](#background)
+* [Demo Objectives](#demo-objectives)
+* [Setup](#setup)
+* [Running the Demo](#running-the-demo)
+* [Slide Deck](#slide-deck)
+* [Architecture](#architecture)
+* [Known Issues](#known-issues)
+* [Resources](#resources)
+* [Maintainers](#maintainers)
+* [License](#license)
 
-### Prerequisites
+---
+
+## Demo Objectives
+
+* Demonstrate semantic intent routing using RedisVL
+* Showcase Redis message history for contextual chat
+* Show agentic orchestration with LangGraph
+* Illustrate tool execution using LangChain tools
+
+---
+## Setup
+
+### Dependencies
+
 - Python 3.11+
 - Node.js 18+
 - Docker (for Redis Stack)
 
+### Configuration
+
+1. Clone the repository:
+
+```bash
+git clone <repository-url>
+cd bank_semantic_router
+```
+
+
+2. Create a .env file in the project root:
+   
+```bash
+OPENAI_API_KEY=your_openai_api_key_here
+REDIS_URL=redis://localhost:6380
+HISTORY_INDEX=bank:msg:index
+HISTORY_NAMESPACE=bank:chat
+HISTORY_TOPK_RECENT=8
+HISTORY_TOPK_RELEVANT=6
+HISTORY_DISTANCE_THRESHOLD=0.35
+```
+---
+## Running the Demo
+
 ### Option 1: Docker Setup (Recommended)
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd bank_semantic_router
 
 # Start all services with Docker
 docker-compose up --build
@@ -58,27 +97,7 @@ brew install redis-stack
 redis-stack-server --daemonize yes
 ```
 
-#### 3. Configure Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-# OpenAI API Configuration (Required)
-OPENAI_API_KEY=your_openai_api_key_here
-
-# Redis Configuration
-REDIS_URL=redis://localhost:6380
-
-
-# RedisVL MessageHistory Configuration
-HISTORY_INDEX=bank:msg:index
-HISTORY_NAMESPACE=bank:chat
-HISTORY_TOPK_RECENT=8
-HISTORY_TOPK_RELEVANT=6
-HISTORY_DISTANCE_THRESHOLD=0.35
-```
-
-#### 4. Run the Backend
+#### 3. Run the Backend
 
 ```bash
 # Make sure virtual environment is activated
@@ -99,6 +118,44 @@ npm run dev
 ```
 
 Frontend will be available at `http://localhost:3000`
+
+---
+
+## Architecture
+
+- **Semantic Routing** (RedisVL): Routes queries to appropriate banking intents (loans, cards, FD, forex, etc.)
+- **Slot-Filling Orchestration** (LangGraph): Manages conversation state and collects required information
+- **Tool Execution** (LangChain): Executes banking operations (EMI calculation, card recommendations, etc.)
+- **Modern Frontend** (Next.js 14 + TypeScript + Tailwind): Responsive banking UI with chat interface
+- **Conversation Memory** (RedisVL MessageHistory): Structured conversation tracking
+
+### Architecture Flow
+
+```
+User Query
+    ↓
+[Semantic Router] → Intent + Confidence + Required Slots
+    ↓
+[Parse Slots] → Extract values from text using LLM
+    ↓
+[Decide Next]
+    ├→ Missing slots? → Ask follow-up question
+    └→ All slots filled? → Call Tool
+         ↓
+    [Tool Execution] → Calculate/Recommend/Search
+         ↓
+    [Summarize] → Format response with bullets
+         ↓
+    Response to User
+         ↓
+    [Feedback System] → User rates helpfulness
+         ↓
+    [Memory Management] → Clear conversation if helpful
+```
+
+<img width="2158" height="2034" alt="image" src="https://github.com/user-attachments/assets/5689fa72-6a4e-44d4-aca2-7c75f8928a05" />
+
+---
 
 ##  API Endpoints
 
@@ -152,7 +209,7 @@ User feedback endpoint for conversation management.
   "cleared": true
 }
 ```
-
+---
 ## Example Conversations
 
 ### Loan EMI Calculation
@@ -179,43 +236,7 @@ Assistant: Based on your income of ₹8,00,000, we recommend the DemoBank Travel
 - 5X rewards on travel
 - Airport lounge access
 ```
-
-
-## Docker Setup
-
-The project includes Docker & Docker Compose for easy development and deployment.
-
-### Quick Start with Docker
-
-```bash
-# Start all services (frontend, backend, redis)
-docker-compose up --build
-
-# Or run in background
-docker-compose up -d --build
-```
-
-### Services
-- **frontend**: Next.js app (port 3000)
-- **backend**: FastAPI app (port 8000) 
-- **redis**: Redis Stack for semantic routing (port 6380)
-
-### Docker Commands
-
-```bash
-# View logs
-docker-compose logs -f
-
-# Rebuild services
-docker-compose up --build
-
-# Stop services
-docker-compose down
-
-# Execute commands in containers
-docker-compose exec backend bash
-docker-compose exec frontend sh
-```
+---
 
 ## Testing
 
@@ -240,151 +261,25 @@ curl -X POST http://localhost:8000/chat \
 ```bash
 python3 test_system.py
 ```
+---
 
-## Tech Stack
+## Resources
 
-### Backend
-- **FastAPI**: Web framework
-- **LangGraph**: State machine orchestration  
-- **LangChain**: Tool framework
-- **RedisVL**: Semantic routing & message history
-- **Sentence Transformers**: Text embeddings
-- **OpenAI**: LLM for slot extraction & summarization
+* [RedisVL Semantic Routing User Guide](https://docs.redisvl.com/en/latest/user_guide/08_semantic_router.html)
+* [RedisVL Semantic Routing API](https://docs.redisvl.com/en/latest/api/router.html)
+* [Semantic Router Blog](https://medium.com/@bhavana0405/why-you-need-semantic-routing-in-your-langgraph-toolkit-a-beginners-guide-c09127bea209)
 
-### Frontend
-- **Next.js 14**: React framework
-- **TypeScript**: Type safety
-- **Tailwind CSS**: Styling
-- **Modern UI**: Glassmorphism design
 
-### Infrastructure
-- **Redis Stack**: Vector database & search
-- **Docker**: Containerization
-- **Docker Compose**: Multi-service orchestration
+---
 
-## Architecture Flow
+## Maintainers
 
+* Bhavana Giri — [bhavanagiri](https://github.com/bhavana-giri)
+
+---
+
+## License
+
+```markdown
+This project is licensed under the [Redis Source Available License](./LICENSE).
 ```
-User Query
-    ↓
-[Semantic Router] → Intent + Confidence + Required Slots
-    ↓
-[Parse Slots] → Extract values from text using LLM
-    ↓
-[Decide Next]
-    ├→ Missing slots? → Ask follow-up question
-    └→ All slots filled? → Call Tool
-         ↓
-    [Tool Execution] → Calculate/Recommend/Search
-         ↓
-    [Summarize] → Format response with bullets
-         ↓
-    Response to User
-         ↓
-    [Feedback System] → User rates helpfulness
-         ↓
-    [Memory Management] → Clear conversation if helpful
-```
-
-<img width="2158" height="2034" alt="image" src="https://github.com/user-attachments/assets/5689fa72-6a4e-44d4-aca2-7c75f8928a05" />
-
-
-## Key Features
-
-### Semantic Routing
-- Intent recognition with confidence scores
-- Routes work across different phrasings
-- Example: "I need a loan" vs "loan application" vs "EMI calculator" all route to `loan`
-
-### Slot-Filling
-- Automatically extracts information from user messages
-- Asks follow-up questions for missing slots
-- Maintains conversation context across turns
-
-### Tool Execution
-- 6 specialized banking tools
-- Returns structured data with summaries and bullet points
-- Example EMI output includes: monthly payment, total interest, amortization details
-
-### Conversation Memory
-- Uses RedisVL MessageHistory for structured storage
-- Session-based conversation tracking
-- Automatic conversation clearing on positive feedback
-- Rich metadata storage (intent, score, timestamps)
-
-
-## Troubleshooting
-
-### Redis Not Running?
-```bash
-docker ps | grep redis-stack
-# If not running:
-docker start redis-stack
-```
-
-### Python Version Wrong?
-```bash
-python3 --version  # Should be 3.11+
-# If not, use: python3.11 or install from python.org
-```
-
-### Port Already in Use?
-```bash
-# Backend on different port:
-uvicorn main:app --reload --port 8001
-
-# Frontend on different port:
-PORT=3001 npm run dev
-```
-
-### Import Errors?
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-### Docker Issues?
-```bash
-# Check what's using the port
-lsof -i :3000
-lsof -i :8000
-
-# Clean up Docker
-docker-compose down -v
-docker system prune -a
-```
-
-## Dependencies
-
-### Python (Backend)
-- fastapi: Web framework
-- langgraph: State machine orchestration
-- langchain: Tool framework
-- langchain-openai: OpenAI integration
-- redisvl: Semantic routing & message history
-- sentence-transformers: Text embeddings
-- openai: LLM API
-
-### Node.js (Frontend)
-- next: 14.2.33
-- react: 18
-- typescript: 5
-- tailwindcss: 3.4.1
-
-### Infrastructure
-- redis-stack: Vector database & search
-- docker: Containerization
-
-## Result
-
-A production-ready banking assistant that:
-- Routes queries semantically
-- Collects information through conversation
-- Executes banking operations
-- Returns structured, detailed responses
-- Displays beautifully in modern UI
-- Manages conversation memory intelligently
-- Provides user feedback system
-- Runs in Docker containers
-
-A complete semantic routing solution for intelligent banking conversations!
