@@ -274,11 +274,11 @@ python3 test_system.py
 ## Maintainers
 
 * Bhavana Giri — [bhavanagiri](https://github.com/bhavana-giri)
+* Giri — [bhavanagiri](https://github.com/bhavana-giri)
 
 ---
 
 ## License
 
-```markdown
-This project is licensed under the MIT([LICENSE](https://github.com/redis-developer/banking-agent-semantic-routing-demo/blob/main/LICENSE)).
-```
+This project is licensed under the [MIT License](./LICENSE).
+
