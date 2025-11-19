@@ -274,7 +274,6 @@ python3 test_system.py
 ## Maintainers
 
 * Bhavana Giri — [bhavanagiri](https://github.com/bhavana-giri)
-* Giri — [bhavanagiri](https://github.com/bhavana-giri)
 
 ---
 
