@@ -280,5 +280,5 @@ python3 test_system.py
 ## License
 
 ```markdown
-This project is licensed under the [MIT License](./LICENSE).
+This project is licensed under the MIT([LICENSE](https://github.com/redis-developer/banking-agent-semantic-routing-demo/blob/main/LICENSE)).
 ```
