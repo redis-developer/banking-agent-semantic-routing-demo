@@ -40,7 +40,7 @@ Virtual banking Agent demonstrates how semantic routing can intelligently route 
 
 ```bash
 git clone <repository-url>
-cd bank_semantic_router
+cd banking-agent-semantic-routing-demo
 ```
 
 
