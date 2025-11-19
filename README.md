@@ -6,7 +6,6 @@ Virtual banking Agent demonstrates how semantic routing can intelligently route 
 
 ## Table of Contents
 
-* [Background](#background)
 * [Demo Objectives](#demo-objectives)
 * [Setup](#setup)
 * [Running the Demo](#running-the-demo)
