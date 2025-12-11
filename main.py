@@ -31,9 +31,10 @@ except ImportError:
 app = FastAPI(title="Bank Semantic Router API", description="Intelligent banking chatbot with semantic routing and conversation memory")
 
 # Add CORS middleware
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:3000").split(",")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

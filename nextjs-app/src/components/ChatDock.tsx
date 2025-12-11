@@ -55,7 +55,8 @@ export default function ChatDock() {
 
     try {
       // Call POST /chat on FastAPI backend
-      const response = await fetch('http://localhost:8000/chat', {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+      const response = await fetch(`${apiBase}/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -111,7 +112,8 @@ export default function ChatDock() {
   const handleFeedback = async (messageId: string, helpful: boolean) => {
     try {
       // Send feedback to backend
-      const response = await fetch('http://localhost:8000/chat/feedback', {
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8000';
+      const response = await fetch(`${apiBase}/chat/feedback`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

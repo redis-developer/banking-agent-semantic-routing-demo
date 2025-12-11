@@ -10,7 +10,7 @@ services:
       - "3000:3000"
     environment:
       - NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-http://localhost:8000}
-      - NODE_ENV=development
+      - NODE_ENV=production
     volumes:
       - ./nextjs-app:/app
       - /app/node_modules
@@ -23,6 +23,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 10
+    restart: unless-stopped
 
   backend:
     build:
@@ -33,8 +34,8 @@ services:
       - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
-      - CORS_ORIGINS=http://localhost:3000
-      - REDIS_URL=${REDIS_URL}
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000}
+      - REDIS_URL=redis://redis:6379
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - HISTORY_INDEX=${HISTORY_INDEX}
       - HISTORY_NAMESPACE=${HISTORY_NAMESPACE}
@@ -43,13 +44,33 @@ services:
       - HISTORY_DISTANCE_THRESHOLD=${HISTORY_DISTANCE_THRESHOLD}
     volumes:
       - .:/app
-    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
     healthcheck:
       test: ["CMD","wget","-qO-","http://localhost:8000/health"]
       interval: 10s
       timeout: 3s
       retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis/redis-stack:latest
+    container_name: banking-redis
+    ports:
+      - "6380:6379"
+      - "8001:8001"  # RedisInsight
+    healthcheck:
+      test: ["CMD","redis-cli","ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
 
 networks:
   default:
     name: banking-net
+

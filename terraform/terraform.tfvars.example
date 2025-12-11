@@ -1,0 +1,45 @@
+# Copy this file to terraform.tfvars and fill in your values
+# cp terraform.tfvars.example terraform.tfvars
+
+# AWS Configuration
+aws_region    = "us-east-1"
+instance_type = "t3.medium"  # t3.small, t3.medium, t3.large, etc.
+
+# SSH Key Pair (must exist in AWS)
+key_pair_name = "semantic_routing_demo"
+
+# VPC Configuration (leave empty to use default VPC)
+# vpc_id    = "vpc-xxxxxxxxx"
+# subnet_id = "subnet-xxxxxxxxx"
+
+# OpenAI Configuration (REQUIRED)
+# Replace with your actual OpenAI API key
+# Format: sk-proj-... or sk-...
+openai_api_key = "sk-your-openai-api-key-here"
+
+# Redis Configuration (optional, defaults shown)
+# redis_url = "redis://redis:6379"
+# history_index = "bank:msg:index"
+# history_namespace = "bank:chat"
+# history_topk_recent = 8
+# history_topk_relevant = 6
+# history_distance_threshold = 0.35
+
+# Security Configuration
+# Restrict SSH access (recommended for production)
+# ssh_cidr_blocks = ["YOUR_IP/32"]
+
+# Restrict application access (recommended for production)
+# allowed_cidr_blocks = ["YOUR_IP/32"]
+
+# GitHub Configuration (optional)
+# github_repo_url = "https://github.com/redis-developer/banking-agent-semantic-routing-demo.git"
+# github_branch = "main"
+
+# Tags
+# tags = {
+#   Project     = "BankingAgent"
+#   Environment = "Production"
+#   ManagedBy   = "Terraform"
+# }
+
