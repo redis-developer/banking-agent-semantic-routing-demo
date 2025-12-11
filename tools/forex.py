@@ -2,7 +2,7 @@
 Forex & Travel Tools - Currency exchange and travel services
 """
 
-from langchain.tools import tool
+from langchain_core.tools import tool
 from typing import Dict, Any
 from datetime import datetime
 

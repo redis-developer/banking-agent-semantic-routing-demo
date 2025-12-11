@@ -6,7 +6,7 @@ Handles intent routing, slot filling, and tool execution
 import os
 from typing import Dict, Any, List, Optional, TypedDict
 from langchain_openai import ChatOpenAI
-from langchain.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langgraph.graph import StateGraph, END
 from dotenv import load_dotenv
 

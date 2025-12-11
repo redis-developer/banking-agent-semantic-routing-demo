@@ -2,7 +2,7 @@
 Credit Card Tools - Card recommendations and benefits
 """
 
-from langchain.tools import tool
+from langchain_core.tools import tool
 from typing import Dict, Any, List
 
 

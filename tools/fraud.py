@@ -2,7 +2,7 @@
 Fraud & Dispute Tools - Handle security issues and disputes
 """
 
-from langchain.tools import tool
+from langchain_core.tools import tool
 from typing import Dict, Any
 from datetime import datetime
 import random

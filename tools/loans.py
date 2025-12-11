@@ -2,7 +2,7 @@
 Loan Tools - EMI calculation and loan eligibility
 """
 
-from langchain.tools import tool
+from langchain_core.tools import tool
 from typing import Dict, Any
 
 
