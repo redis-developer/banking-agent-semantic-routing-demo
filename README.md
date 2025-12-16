@@ -9,6 +9,7 @@ Virtual banking Agent demonstrates how semantic routing can intelligently route 
 * [Demo Objectives](#demo-objectives)
 * [Setup](#setup)
 * [Running the Demo](#running-the-demo)
+* [Cloud Deployment](#option-3-cloud-deployment-aws-ec2)
 * [Architecture](#architecture)
 * [Resources](#resources)
 * [Maintainers](#maintainers)
@@ -115,6 +116,30 @@ npm run dev
 ```
 
 Frontend will be available at `http://localhost:3000`
+
+### Option 3: Cloud Deployment (AWS EC2)
+
+Deploy to AWS EC2 using Terraform for a production-ready setup.
+
+**Prerequisites:**
+- AWS account with CLI configured
+- Terraform installed (>= 1.0)
+- SSH key pair in AWS EC2
+- OpenAI API key
+- Redis Cloud account
+
+**Quick Start:**
+
+```bash
+cd terraform
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values
+terraform init
+terraform plan
+terraform apply
+```
+
+**Full deployment guide:** See [terraform/README.md](./terraform/README.md) for detailed instructions.
 
 ---
 

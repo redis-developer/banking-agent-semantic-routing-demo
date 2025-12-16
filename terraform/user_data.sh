@@ -74,9 +74,20 @@ CORS_ORIGINS=http://localhost:3000,http://$PUBLIC_IP:3000
 NEXT_PUBLIC_API_BASE=http://$PUBLIC_IP:8000
 EOF
 
+# Export environment variables so docker-compose can use them
+export OPENAI_API_KEY=${openai_api_key}
+export REDIS_URL=${redis_url}
+export HISTORY_INDEX=${history_index}
+export HISTORY_NAMESPACE=${history_namespace}
+export HISTORY_TOPK_RECENT=${history_topk_recent}
+export HISTORY_TOPK_RELEVANT=${history_topk_relevant}
+export HISTORY_DISTANCE_THRESHOLD=${history_distance_threshold}
+export CORS_ORIGINS="http://localhost:3000,http://$PUBLIC_IP:3000"
+export NEXT_PUBLIC_API_BASE="http://$PUBLIC_IP:8000"
+
 # Update docker-compose.yml to use environment variables from .env
-sed -i "s|NEXT_PUBLIC_API_BASE=http://localhost:8000|NEXT_PUBLIC_API_BASE=\${NEXT_PUBLIC_API_BASE:-http://$PUBLIC_IP:8000}|g" $APP_DIR/docker-compose.yml || true
-sed -i "s|CORS_ORIGINS=http://localhost:3000|CORS_ORIGINS=\${CORS_ORIGINS:-http://localhost:3000,http://$PUBLIC_IP:3000}|g" $APP_DIR/docker-compose.yml || true
+sed -i "s|NEXT_PUBLIC_API_BASE=.*|NEXT_PUBLIC_API_BASE=\${NEXT_PUBLIC_API_BASE:-http://$PUBLIC_IP:8000}|g" $APP_DIR/docker-compose.yml || true
+sed -i "s|CORS_ORIGINS=.*|CORS_ORIGINS=\${CORS_ORIGINS:-http://localhost:3000,http://$PUBLIC_IP:3000}|g" $APP_DIR/docker-compose.yml || true
 
 # Build and start containers
 cd $APP_DIR
@@ -98,10 +109,13 @@ fi
 echo "Waiting for services to start..."
 sleep 30
 
-# Check service health
+# Restart frontend to ensure it picks up NEXT_PUBLIC_API_BASE environment variable
+# (Next.js needs this at startup, not just build time)
 if command -v docker-compose &> /dev/null; then
+    docker-compose restart frontend
     docker-compose ps
 elif docker compose version &> /dev/null; then
+    docker compose restart frontend
     docker compose ps
 fi
 
