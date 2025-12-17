@@ -78,42 +78,42 @@ def route_intent_node(state: ConversationState) -> ConversationState:
                 "required_slots": ["loan_type", "amount", "tenure"],
                 "handler": "loans_tool"
             }
-            print(f"💭 Reusing 'loan' intent from context (user answering slot question)")
+            print(f"Reusing 'loan' intent from context (user answering slot question)")
         elif is_short_answer and ("credit" in context.lower() or "Intent: credit_card" in context):
             reuse_intent = "credit_card"
             reuse_metadata = {
                 "required_slots": ["income", "card_type"],
                 "handler": "cards_tool"
             }
-            print(f"💭 Reusing 'credit_card' intent from context")
+            print(f"Reusing 'credit_card' intent from context")
         elif is_short_answer and ("savings" in context.lower() or "fd" in context.lower() or "Intent: savings_fd" in context):
             reuse_intent = "savings_fd"
             reuse_metadata = {
                 "required_slots": ["amount", "tenure"],
                 "handler": "savings_tool"
             }
-            print(f"💭 Reusing 'savings_fd' intent from context")
+            print(f"Reusing 'savings_fd' intent from context")
         elif is_short_answer and ("forex" in context.lower() or "currency" in context.lower() or "Intent: forex_travel" in context):
             reuse_intent = "forex_travel"
             reuse_metadata = {
                 "required_slots": ["currency", "amount"],
                 "handler": "forex_tool"
             }
-            print(f"💭 Reusing 'forex_travel' intent from context")
+            print(f"Reusing 'forex_travel' intent from context")
         elif is_short_answer and ("policy" in context.lower() or "faq" in context.lower() or "Intent: policy_faq" in context):
             reuse_intent = "policy_faq"
             reuse_metadata = {
                 "required_slots": [],
                 "handler": "policy_rag_tool"
             }
-            print(f"💭 Reusing 'policy_faq' intent from context")
+            print(f"Reusing 'policy_faq' intent from context")
         elif is_short_answer and ("fraud" in context.lower() or "dispute" in context.lower() or "Intent: fraud_dispute" in context):
             reuse_intent = "fraud_dispute"
             reuse_metadata = {
                 "required_slots": ["transaction_id", "description"],
                 "handler": "fraud_tool"
             }
-            print(f"💭 Reusing 'fraud_dispute' intent from context")
+            print(f"Reusing 'fraud_dispute' intent from context")
     
     # If reusing intent from context, skip routing
     if reuse_intent:

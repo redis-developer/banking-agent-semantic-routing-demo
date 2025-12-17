@@ -142,7 +142,7 @@ class BankingRouter:
             overwrite=False  # Don't overwrite on each restart
         )
         
-        print(f"✅ Banking Router initialized with {len(BANKING_ROUTES)} routes")
+        print(f"Banking Router initialized with {len(BANKING_ROUTES)} routes")
     
     def route_text(self, text: str) -> Dict:
         """
